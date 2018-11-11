@@ -27,4 +27,5 @@ class TableViewCell: UITableViewCell {
         labelforcell.lineBreakMode = .byWordWrapping
         labelforcell.numberOfLines = 0
     }
+    
 }

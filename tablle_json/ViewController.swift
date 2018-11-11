@@ -13,9 +13,38 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var index = 0
     
     
-    var list = ["https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/attack_on_titan.json", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/beck.json", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/clannad.json", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/code_geass.json"]
-    var listimages = ["attack_on_titan.jpg", "beck.jpg", "clannad.jpg", "code_geass.jpg"]
+//    var list = ["https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/beck.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/clannad.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/code_geass.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/fma.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/monster.json"]
+//
+//    var listimages = ["https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/attack_on_titan.jpg", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/beck.jpg", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/clannad.jpg", "code_geass.jpg"]
+//
     
+    var list = [
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.jpg"
+        ),
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/beck.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/beck.jpg"
+        ),
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/clannad.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/clannad.jpg"
+        ),
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/code_geass.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/code_geass.jpg"
+        ),
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/fma.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/fma.jpg"
+        ),
+        (
+            url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/monster.json",
+            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/monster.jpg"
+        )
+    ]
+    var images = [UIImage]()
     var selectedrow: Post!
     var text: String!
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -25,7 +54,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TableViewCell
         cell.labelforcell.text = posts[indexPath.row].name
-        
+        print(index)
+        print(indexPath.row)
+        print(images.count)
+        print(posts.count)
+        cell.imageforcell.image = images[indexPath.row]
         return cell
     }
     
@@ -44,6 +77,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if segue.identifier == "tosecond" {
             let second = segue.destination as! SecondViewController
              second.newpost = selectedrow!
+            second.animage = images[self.index]
         }
     }
     
@@ -67,31 +101,51 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let post = Post(dict: postDict) else { return }
         posts.append(post)
     }
-    
-    
+
+
     func getPosts() {
         for i in list{
-            guard let url = URL(string: i) else { return }
+            guard let url = URL(string: i.url) else { return }
 
             URLSession.shared.dataTask(with: url) { (data, response, error) in
                 if let error = error {
                     print(error.localizedDescription)
                     return
                 }
+                
                 guard let data = data else { return }
 
                 do {
                     let json = try JSONSerialization.jsonObject(with: data, options: [])
                     self.parsePosts(from: json)
-                    DispatchQueue.main.async {
-                        self.table.reloadData()
-                    }
+//                    DispatchQueue.main.async {
+//                        self.table.reloadData()
+//                    }
                 } catch {
                     print(error.localizedDescription)
                 }
 
                 }.resume()
         }
+        for i in list{
+            guard let url = URL(string: i.image) else { return }
+            
+            URLSession.shared.dataTask(with: url) { (data, response, error) in
+                if let error = error {
+                    print(error.localizedDescription)
+                    return
+                }
+                guard let data = data else { return }
+                if let image = UIImage(data: data) {
+                    self.images.append(image)
+                    DispatchQueue.main.async {
+                        self.table.reloadData()
+                    }
+                }
+
+            }.resume()
+        }
     }
 }
+
 

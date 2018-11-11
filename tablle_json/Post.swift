@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 struct Post {
@@ -16,6 +17,7 @@ struct Post {
     let episodes: String
     let episode_length: String
     let description: String
+//    let imageforsecond = ""
 
 }
 

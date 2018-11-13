@@ -10,13 +10,6 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    var index = 0
-    
-    
-//    var list = ["https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/beck.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/clannad.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/code_geass.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/fma.json", "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/monster.json"]
-//
-//    var listimages = ["https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/attack_on_titan.jpg", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/beck.jpg", "https://github.com/techparkios/ios-lectures-fall-2018/blob/master/06/clannad.jpg", "code_geass.jpg"]
-//
     
     var list = [
         (
@@ -44,7 +37,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/monster.jpg"
         )
     ]
-    var images = [UIImage]()
     var selectedrow: Post!
     var text: String!
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -54,11 +46,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TableViewCell
         cell.labelforcell.text = posts[indexPath.row].name
-        print(index)
-        print(indexPath.row)
-        print(images.count)
-        print(posts.count)
-        cell.imageforcell.image = images[indexPath.row]
+        cell.imageforcell.image = posts[indexPath.row].imageforsecond
         return cell
     }
     
@@ -67,7 +55,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        index = indexPath.row
         self.selectedrow = posts[indexPath.row]
         performSegue(withIdentifier: "tosecond", sender: self)
         
@@ -77,7 +64,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if segue.identifier == "tosecond" {
             let second = segue.destination as! SecondViewController
              second.newpost = selectedrow!
-            second.animage = images[self.index]
         }
     }
     
@@ -86,7 +72,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         table.delegate = self
         table.dataSource = self
         getPosts()
@@ -95,12 +80,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     var posts = [Post]()
 
-    
-    func parsePosts(from json: Any) {
-        guard let postDict = json as? NSDictionary,
-            let post = Post(dict: postDict) else { return }
-        posts.append(post)
-    }
 
 
     func getPosts() {
@@ -117,19 +96,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
                 do {
                     let json = try JSONSerialization.jsonObject(with: data, options: [])
-                    self.parsePosts(from: json)
-//                    DispatchQueue.main.async {
-//                        self.table.reloadData()
-//                    }
+                    guard let postDict = json as? NSDictionary,
+                        let post = Post(dict: postDict) else { return }
+                    self.getimages(url: i.image, postim: post)
                 } catch {
                     print(error.localizedDescription)
                 }
 
                 }.resume()
         }
-        for i in list{
-            guard let url = URL(string: i.image) else { return }
-            
+    }
+    func getimages(url: String, postim: Post){
+            guard let url = URL(string: url) else { return }
             URLSession.shared.dataTask(with: url) { (data, response, error) in
                 if let error = error {
                     print(error.localizedDescription)
@@ -137,14 +115,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }
                 guard let data = data else { return }
                 if let image = UIImage(data: data) {
-                    self.images.append(image)
+                    var newpost = postim
+                    newpost.imageforsecond = image
+                    self.posts.append(newpost)
                     DispatchQueue.main.async {
                         self.table.reloadData()
                     }
                 }
 
             }.resume()
-        }
     }
 }
 

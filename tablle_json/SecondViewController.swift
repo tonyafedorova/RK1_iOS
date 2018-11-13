@@ -20,8 +20,7 @@ class SecondViewController: UIViewController {
         self.episodes.text = "Количество эпизодов: \(newpost!.episodes)"
         self.length.text = "Длина серии: \(newpost!.episode_length)"
         self.typeof.text = "Тип аниме: \(newpost!.type)"
-//        self.imageforsecond = animage
-        if let imag = animage{
+        if let imag = newpost?.imageforsecond{
             self.imageforsecond.image = imag
         }
     }

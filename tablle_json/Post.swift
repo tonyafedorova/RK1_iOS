@@ -12,12 +12,12 @@ import UIKit
 
 struct Post {
 
-    let name: String
-    let type: String
-    let episodes: String
-    let episode_length: String
-    let description: String
-//    let imageforsecond = ""
+    var name = ""
+    var type = ""
+    var episodes = ""
+    var episode_length = ""
+    var description = ""
+    var imageforsecond: UIImage?
 
 }
 

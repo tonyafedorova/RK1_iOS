@@ -14,7 +14,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var list = [
         (
             url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.json",
-            image: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/attack_on_titan.jpg"
+            image: ""
         ),
         (
             url: "https://raw.githubusercontent.com/techparkios/ios-lectures-fall-2018/master/06/beck.json",
@@ -106,23 +106,35 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }.resume()
         }
     }
+    func caseError(postim: Post){
+        self.posts.append(postim)
+        DispatchQueue.main.async {
+            self.table.reloadData()
+        }
+    }
     func getimages(url: String, postim: Post){
-            guard let url = URL(string: url) else { return }
+            guard let url = URL(string: url) else {
+                caseError(postim: postim)
+                return
+                
+        }
             URLSession.shared.dataTask(with: url) { (data, response, error) in
                 if let error = error {
+                    self.caseError(postim: postim)
                     print(error.localizedDescription)
                     return
                 }
-                guard let data = data else { return }
-                if let image = UIImage(data: data) {
-                    var newpost = postim
-                    newpost.imageforsecond = image
-                    self.posts.append(newpost)
-                    DispatchQueue.main.async {
-                        self.table.reloadData()
-                    }
+                guard let data = data else {
+                    self.caseError(postim: postim)
+                    return
+                    
                 }
-
+                var newpost = postim
+                if let image = UIImage(data: data) {
+                    newpost.imageforsecond = image
+                }
+                self.caseError(postim: newpost)
+                
             }.resume()
     }
 }
